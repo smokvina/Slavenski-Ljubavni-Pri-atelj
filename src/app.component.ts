@@ -77,6 +77,13 @@ export class AppComponent implements OnInit {
   loadingChat = signal<boolean>(false);
   chatError = signal<string | null>(null);
 
+  chatExamples = signal<string[]>([
+    "Koja je uloga Lade u slavenskoj mitologiji?",
+    "Objasni Veneru u sinastriji ukratko.",
+    "Tko je Perun i koje su njegove karakteristike?",
+    "Kako se tumači konjunkcija Mjeseca u sinastriji?",
+  ]);
+
   lowLatencyResponse = signal<string | null>(null);
   loadingLowLatency = signal<boolean>(false);
   lowLatencyError = signal<string | null>(null);
@@ -278,6 +285,10 @@ export class AppComponent implements OnInit {
     } finally {
       this.loadingImage.set(false);
     }
+  }
+
+  selectChatExample(example: string): void {
+    this.chatInput.set(example);
   }
 
   async onChatSubmit(): Promise<void> {
