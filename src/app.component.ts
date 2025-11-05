@@ -88,12 +88,13 @@ export class AppComponent implements OnInit {
     effect(() => {
       const result = this.analysisResult();
       if (result) {
-        marked.parse(result).then(html => {
+        try {
+          const html = marked.parse(result);
           this.analysisHtml.set(html);
-        }).catch(err => {
+        } catch (err) {
           console.error("Markdown parsing error:", err);
           this.analysisHtml.set(`<p class="text-red-400">Error rendering analysis.</p><pre>${result}</pre>`);
-        });
+        }
       } else {
         this.analysisHtml.set('');
       }
