@@ -1,4 +1,5 @@
 
+
 <h1 class="text-3xl font-bold text-center text-purple-300 mb-6 lg:hidden">Slavenski Ljubavni Pričatelj</h1>
 
 <div class="flex lg:hidden w-full mb-4 justify-center space-x-4">
@@ -16,6 +17,13 @@
 
 <div class="flex flex-col lg:flex-row w-full max-w-7xl mx-auto bg-gray-800 bg-opacity-70 rounded-xl shadow-2xl p-6 space-y-8 lg:space-y-0 lg:space-x-8">
 
+  @if (apiKeyMissing()) {
+    <div class="bg-red-800 text-white p-4 rounded-md mb-6 text-center shadow-lg lg:col-span-2 w-full">
+      <p class="font-bold">Upozorenje: Gemini API ključ nije konfiguriran!</p>
+      <p class="text-sm">Funkcionalnosti koje koriste Gemini API su onemogućene. Molimo provjerite konfiguraciju API ključa.</p>
+    </div>
+  }
+
   <!-- Left Column: Input Forms -->
   <div class="lg:w-1/2 p-4 bg-gray-900 bg-opacity-60 rounded-lg shadow-inner flex flex-col space-y-6"
        [class.hidden]="activeMobileTab() !== 'input'"
@@ -28,6 +36,7 @@
       <label for="imeA" class="block text-sm font-medium text-gray-300 mb-1">Ime Prve Osobe (Partner A)</label>
       <input type="text" id="imeA" [(ngModel)]="imeOsobeA"
              [class.border-red-500]="imeOsobeAError()"
+             [disabled]="apiKeyMissing()"
              class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:ring-purple-500 focus:border-purple-500">
       @if (imeOsobeAError()) {
         <p class="text-red-400 text-xs mt-1">{{ imeOsobeAError() }}</p>
@@ -36,6 +45,7 @@
       <label for="datumA" class="block text-sm font-medium text-gray-300 mt-3 mb-1">Datum rođenja A</label>
       <input type="date" id="datumA" [(ngModel)]="datumRodjenjaA"
              [class.border-red-500]="datumRodjenjaAError()"
+             [disabled]="apiKeyMissing()"
              class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:ring-purple-500 focus:border-purple-500">
       @if (datumRodjenjaAError()) {
         <p class="text-red-400 text-xs mt-1">{{ datumRodjenjaAError() }}</p>
@@ -44,6 +54,7 @@
       <label for="vrijemeA" class="block text-sm font-medium text-gray-300 mt-3 mb-1">Vrijeme rođenja A</label>
       <input type="time" id="vrijemeA" [(ngModel)]="vrijemeRodjenjaA"
              [class.border-red-500]="vrijemeRodjenjaAError()"
+             [disabled]="apiKeyMissing()"
              class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:ring-purple-500 focus:border-purple-500">
       @if (vrijemeRodjenjaAError()) {
         <p class="text-red-400 text-xs mt-1">{{ vrijemeRodjenjaAError() }}</p>
@@ -53,6 +64,7 @@
       <input type="text" id="mjestoA" [(ngModel)]="mjestoRodjenjaA"
              [class.border-red-500]="mjestoRodjenjaAError()"
              placeholder="Npr. Zagreb, Hrvatska"
+             [disabled]="apiKeyMissing()"
              class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:ring-purple-500 focus:border-purple-500">
       @if (mjestoRodjenjaAError()) {
         <p class="text-red-400 text-xs mt-1">{{ mjestoRodjenjaAError() }}</p>
@@ -64,6 +76,7 @@
       <label for="imeB" class="block text-sm font-medium text-gray-300 mb-1">Ime Druge Osobe (Partner B)</label>
       <input type="text" id="imeB" [(ngModel)]="imeOsobeB"
              [class.border-red-500]="imeOsobeBError()"
+             [disabled]="apiKeyMissing()"
              class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:ring-purple-500 focus:border-purple-500">
       @if (imeOsobeBError()) {
         <p class="text-red-400 text-xs mt-1">{{ imeOsobeBError() }}</p>
@@ -72,6 +85,7 @@
       <label for="datumB" class="block text-sm font-medium text-gray-300 mt-3 mb-1">Datum rođenja B</label>
       <input type="date" id="datumB" [(ngModel)]="datumRodjenjaB"
              [class.border-red-500]="datumRodjenjaBError()"
+             [disabled]="apiKeyMissing()"
              class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:ring-purple-500 focus:border-purple-500">
       @if (datumRodjenjaBError()) {
         <p class="text-red-400 text-xs mt-1">{{ datumRodjenjaBError() }}</p>
@@ -80,6 +94,7 @@
       <label for="vrijemeB" class="block text-sm font-medium text-gray-300 mt-3 mb-1">Vrijeme rođenja B</label>
       <input type="time" id="vrijemeB" [(ngModel)]="vrijemeRodjenjaB"
              [class.border-red-500]="vrijemeRodjenjaBError()"
+             [disabled]="apiKeyMissing()"
              class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:ring-purple-500 focus:border-purple-500">
       @if (vrijemeRodjenjaBError()) {
         <p class="text-red-400 text-xs mt-1">{{ vrijemeRodjenjaBError() }}</p>
@@ -89,6 +104,7 @@
       <input type="text" id="mjestoB" [(ngModel)]="mjestoRodjenjaB"
              [class.border-red-500]="mjestoRodjenjaBError()"
              placeholder="Npr. Split, Hrvatska"
+             [disabled]="apiKeyMissing()"
              class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:ring-purple-500 focus:border-purple-500">
       @if (mjestoRodjenjaBError()) {
         <p class="text-red-400 text-xs mt-1">{{ mjestoRodjenjaBError() }}</p>
@@ -96,7 +112,7 @@
     </div>
 
     <button (click)="onSubmitAnalysis()"
-            [disabled]="!formValid() || loadingAnalysis()"
+            [disabled]="!formValid() || loadingAnalysis() || apiKeyMissing()"
             class="w-full py-3 px-6 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-md shadow-lg transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed">
       @if (loadingAnalysis()) {
         <span class="animate-spin inline-block w-5 h-5 border-2 border-current border-t-transparent rounded-full mr-2"></span>
@@ -131,9 +147,11 @@
       <h2 class="text-2xl font-bold text-purple-300 mb-4">Vizualizirajte Vašu Priču</h2>
       <label for="imagePrompt" class="block text-sm font-medium text-gray-300 mb-1">Prompt za sliku (npr. Lada i Yarilo)</label>
       <input type="text" id="imagePrompt" [(ngModel)]="imagePrompt" placeholder="Opišite scenu inspiriranu analizom..."
+             [disabled]="apiKeyMissing()"
              class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:ring-purple-500 focus:border-purple-500 mb-2">
       <button (click)="onGenerateImage()"
-              class="w-full py-2 px-4 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-md shadow transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-75">
+              [disabled]="loadingImage() || apiKeyMissing()"
+              class="w-full py-2 px-4 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-md shadow transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed">
         @if (loadingImage()) {
           <span class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"></span>
           Generiranje slike...
@@ -156,26 +174,26 @@
       <h2 class="text-2xl font-bold text-purple-300 mb-4">Gemini Pripovjedač (Chatbot)</h2>
       <div class="flex-grow bg-gray-700 bg-opacity-50 p-4 rounded-md overflow-y-auto max-h-72 mb-4 custom-scrollbar">
         @for (message of chatHistory(); track $index) {
-          <div [class]="{'text-right': message.sender === 'user', 'text-left': message.sender === 'gemini'}">
-            <span [class]="{'bg-purple-600': message.sender === 'user', 'bg-indigo-600': message.sender === 'gemini'}"
-                  class="inline-block p-2 rounded-lg max-w-[80%] text-white text-sm my-1 shadow">
+          <div [class]="{'flex justify-end': message.sender === 'user', 'flex justify-start': message.sender === 'gemini'}">
+            <div [class]="{'bg-purple-600': message.sender === 'user', 'bg-indigo-600': message.sender === 'gemini'}"
+                  class="flex flex-col p-2 rounded-lg max-w-[80%] text-white text-sm my-1 shadow break-words">
               {{ message.text }}
-            </span>
-            @if (message.groundingUrls && message.groundingUrls.length > 0) {
-              <div class="text-xs text-gray-400 mt-1">
-                <p>Izvori:</p>
-                @for (url of message.groundingUrls; track $index) {
-                  <a [href]="url" target="_blank" class="block text-blue-300 hover:underline">{{ url }}</a>
-                }
-              </div>
-            }
+              @if (message.groundingUrls && message.groundingUrls.length > 0) {
+                <div class="text-xs text-gray-200 mt-1">
+                  <p class="font-semibold mb-0.5">Izvori:</p>
+                  @for (url of message.groundingUrls; track $index) {
+                    <a [href]="url" target="_blank" class="block text-blue-200 hover:underline break-all">{{ url }}</a>
+                  }
+                </div>
+              }
+            </div>
           </div>
         }
         @if (loadingChat()) {
-          <div class="text-left">
-            <span class="inline-block p-2 rounded-lg bg-indigo-600 text-white text-sm my-1 shadow">
+          <div class="flex justify-start">
+            <div class="flex flex-col p-2 rounded-lg bg-indigo-600 text-white text-sm my-1 shadow">
               <span class="animate-pulse">Razmišljam...</span>
-            </span>
+            </div>
           </div>
         }
       </div>
@@ -184,10 +202,12 @@
       }
       <div class="flex space-x-2 mt-auto">
         <input type="text" [(ngModel)]="chatInput" (keyup.enter)="onChatSubmit()"
-               class="flex-grow p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:ring-purple-500 focus:border-purple-500"
+               [disabled]="apiKeyMissing()"
+               class="flex-grow p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                placeholder="Pitajte nešto o sinastriji ili slavenskoj mitologiji...">
         <button (click)="onChatSubmit()"
-                class="bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-md transition duration-300">
+                [disabled]="apiKeyMissing()"
+                class="bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-md transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
           Pošalji
         </button>
       </div>
@@ -195,16 +215,19 @@
       <!-- Grounding and Low-Latency Buttons -->
       <div class="grid grid-cols-2 gap-2 mt-4 text-sm">
         <button (click)="onSearchGrounding()"
-                class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
+                [disabled]="apiKeyMissing()"
+                class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed">
           Pretraži (Grounding)
         </button>
         <button (click)="onMapsGrounding('Ancient Slavic lands')"
-                class="bg-green-600 hover:bg-green-700 text-white p-2 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75">
-          Istakni slavenska mjesta (Maps)
+                [disabled]="apiKeyMissing()"
+                class="bg-gray-500 hover:bg-gray-600 text-white p-2 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed">
+          Maps (Nije podržano)
         </button>
       </div>
       <button (click)="onGetLowLatencyResponse()"
-              class="w-full mt-2 bg-yellow-600 hover:bg-yellow-700 text-white p-2 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-75">
+              [disabled]="loadingLowLatency() || apiKeyMissing()"
+              class="w-full mt-2 bg-yellow-600 hover:bg-yellow-700 text-white p-2 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed">
         @if (loadingLowLatency()) {
           <span class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"></span>
           Brzi odgovor...
@@ -220,4 +243,3 @@
     </div>
 
   </div>
-</div>

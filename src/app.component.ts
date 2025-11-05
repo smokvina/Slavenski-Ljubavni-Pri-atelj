@@ -83,6 +83,9 @@ export class AppComponent implements OnInit {
 
   activeMobileTab = signal<'input' | 'results'>('input'); // Signal for mobile tab navigation
 
+  // Expose apiKeyMissing from service
+  apiKeyMissing = this.geminiService.apiKeyMissing;
+
   constructor(private geminiService: GeminiService) {
     // Effect to re-render markdown when analysisResult changes
     effect(() => {
@@ -114,7 +117,16 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.generateExampleAstroData();
-    this.geminiService.startChat(); // Initialize chat instance
+    // Only attempt to start chat if API key is not missing
+    if (!this.geminiService.apiKeyMissing()) {
+      this.geminiService.startChat(); // Initialize chat instance
+    } else {
+      const errorMessage = 'Gemini API ključ nije konfiguriran. Molimo kontaktirajte podršku.';
+      this.analysisError.set(errorMessage);
+      this.imageError.set(errorMessage);
+      this.chatError.set(errorMessage);
+      this.lowLatencyError.set(errorMessage);
+    }
   }
 
   // Clear all validation errors
@@ -213,6 +225,10 @@ export class AppComponent implements OnInit {
   }
 
   async onSubmitAnalysis(): Promise<void> {
+    if (this.apiKeyMissing()) {
+        this.analysisError.set('Operacija nije moguća: Gemini API ključ nije konfiguriran.');
+        return;
+    }
     if (!this.validateForm()) {
       this.analysisError.set('Molimo popunite sva obavezna polja ispravno.');
       return;
@@ -243,6 +259,10 @@ export class AppComponent implements OnInit {
   }
 
   async onGenerateImage(): Promise<void> {
+    if (this.apiKeyMissing()) {
+        this.imageError.set('Operacija nije moguća: Gemini API ključ nije konfiguriran.');
+        return;
+    }
     if (!this.imagePrompt()) {
       this.imageError.set('Please provide an image prompt.');
       return;
@@ -261,6 +281,10 @@ export class AppComponent implements OnInit {
   }
 
   async onChatSubmit(): Promise<void> {
+    if (this.apiKeyMissing()) {
+        this.chatError.set('Operacija nije moguća: Gemini API ključ nije konfiguriran.');
+        return;
+    }
     const userMessage = this.chatInput().trim();
     if (!userMessage) return;
 
@@ -280,6 +304,10 @@ export class AppComponent implements OnInit {
   }
 
   async onSearchGrounding(query: string = this.chatInput()): Promise<void> {
+    if (this.apiKeyMissing()) {
+        this.chatError.set('Operacija nije moguća: Gemini API ključ nije konfiguriran.');
+        return;
+    }
     const userMessage = query.trim();
     if (!userMessage) return;
 
@@ -299,6 +327,10 @@ export class AppComponent implements OnInit {
   }
 
   async onMapsGrounding(query: string = this.chatInput()): Promise<void> {
+    if (this.apiKeyMissing()) {
+        this.chatError.set('Operacija nije moguća: Gemini API ključ nije konfiguriran.');
+        return;
+    }
     const userMessage = query.trim();
     if (!userMessage) return;
 
@@ -318,6 +350,10 @@ export class AppComponent implements OnInit {
   }
 
   async onGetLowLatencyResponse(): Promise<void> {
+    if (this.apiKeyMissing()) {
+        this.lowLatencyError.set('Operacija nije moguća: Gemini API ključ nije konfiguriran.');
+        return;
+    }
     const query = this.chatInput().trim();
     if (!query) {
       this.lowLatencyError.set('Please enter a query for low-latency response.');

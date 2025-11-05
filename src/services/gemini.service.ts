@@ -3,12 +3,31 @@ import { GoogleGenAI, GenerateContentResponse, Type, Chat } from '@google/genai'
 
 @Injectable({ providedIn: 'root' })
 export class GeminiService {
-  private ai: GoogleGenAI;
+  private ai: GoogleGenAI | null = null; // Can be null if API key is missing
   private chatInstance: Chat | null = null;
+  apiKeyMissing = signal<boolean>(false);
 
   constructor() {
-    // CRITICAL: API key must be from process.env.API_KEY
-    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.API_KEY;
+    if (!apiKey || apiKey === 'YOUR_API_KEY') { // Check for placeholder too
+      console.warn('CRITICAL: Gemini API Key is missing or invalid. Please set process.env.API_KEY.');
+      this.apiKeyMissing.set(true);
+      return; // Do not attempt to initialize GoogleGenAI without a valid key
+    }
+
+    try {
+      this.ai = new GoogleGenAI({ apiKey: apiKey });
+      this.apiKeyMissing.set(false);
+    } catch (error) {
+      console.error('Error initializing GoogleGenAI:', error);
+      this.apiKeyMissing.set(true);
+    }
+  }
+
+  private checkApiKey(): void {
+    if (this.apiKeyMissing() || !this.ai) {
+      throw new Error('Gemini API ključ nije konfiguriran. Molimo kontaktirajte podršku.');
+    }
   }
 
   // --- Core Synastry Analysis (Gemini-2.5-Pro with Thinking Mode) ---
@@ -22,6 +41,7 @@ export class GeminiService {
     vrijemeRodjenjaB: string;
     mjestoRodjenjaB: string;
   }): Promise<string> {
+    this.checkApiKey(); // Added API key check
     const prompt = `
     Uloga: Ti si Slavenski Ljubavni Pričatelj (Erotični Sinastričar). Tvoja primarna uloga je stvoriti detaljnu, etički besprijekornu i strastvenu analizu romantične i erotske kompatibilnosti (sinastrije) između dvoje ljudi.
     Twist/Etika: Analizu kreiraš spajanjem precizne sinastrijske simbolike i modernih uvida u psihologiju strasti, intimnosti i trajnog partnerstva. Svaki segment analize mora biti ispričan kroz prizmu slavenskih mitova o ljubavi, plodnosti, strasti (poput Yarila i Lade), te erotskih narodnih priča i obrednih pjesama. Tvoj cilj je paru pružiti uvid u dubinu, strast i potencijal za rast njihovog odnosa, uz potpunu etičku odgovornost.
@@ -68,7 +88,7 @@ export class GeminiService {
     `;
 
     try {
-      const response: GenerateContentResponse = await this.ai.models.generateContent({
+      const response: GenerateContentResponse = await this.ai!.models.generateContent({ // Use non-null assertion as checkApiKey ensures it's not null
         model: 'gemini-2.5-pro', // Use Pro for complex tasks
         contents: prompt,
         config: {
@@ -84,8 +104,9 @@ export class GeminiService {
 
   // --- Image Generation (Imagen-4.0-generate-001) ---
   async generateImage(prompt: string): Promise<string> {
+    this.checkApiKey(); // Added API key check
     try {
-      const response = await this.ai.models.generateImages({
+      const response = await this.ai!.models.generateImages({
         model: 'imagen-4.0-generate-001',
         prompt: prompt,
         config: {
@@ -105,20 +126,25 @@ export class GeminiService {
 
   // --- Chat Bot (Gemini-2.5-Flash with Streaming) ---
   async startChat(): Promise<void> {
-    this.chatInstance = this.ai.chats.create({
-      model: 'gemini-2.5-flash',
-      config: {
-        systemInstruction: 'You are a helpful assistant for Slavic mythology and astrological synastry. Provide concise and relevant information. If asked about current events or locations, use grounding tools.',
-      },
-    });
+    this.checkApiKey(); // Added API key check
+    if (!this.chatInstance) { // Only create if not already created
+        this.chatInstance = this.ai!.chats.create({
+          model: 'gemini-2.5-flash',
+          config: {
+            systemInstruction: 'You are a helpful assistant for Slavic mythology and astrological synastry. Provide concise and relevant information. If asked about current events or locations, use grounding tools.',
+          },
+        });
+    }
   }
 
   async sendMessageToChat(message: string): Promise<string> {
+    this.checkApiKey(); // Added API key check
     if (!this.chatInstance) {
-      await this.startChat();
+      await this.startChat(); // Ensure chat instance is ready
     }
 
     try {
+      // Non-null assertion for this.chatInstance! as it's checked by startChat or checkApiKey
       const responseStream = await this.chatInstance!.sendMessageStream({ message });
       let fullResponse = '';
       for await (const chunk of responseStream) {
@@ -131,11 +157,12 @@ export class GeminiService {
     }
   }
 
-  // --- Low-Latency Response (Gemini-2.5-Flash-Lite) ---
+  // --- Low-Latency Response (Gemini-2.5-Flash with thinkingBudget: 0) ---
   async getLowLatencyResponse(query: string): Promise<string> {
+    this.checkApiKey(); // Added API key check
     try {
-      const response: GenerateContentResponse = await this.ai.models.generateContent({
-        model: 'gemini-2.5-flash', // Using flash for low latency as lite is not a distinct model in client
+      const response: GenerateContentResponse = await this.ai!.models.generateContent({
+        model: 'gemini-2.5-flash',
         contents: query,
         config: {
           thinkingConfig: { thinkingBudget: 0 } // Disable thinking for lowest latency
@@ -148,11 +175,11 @@ export class GeminiService {
     }
   }
 
-
   // --- Search Grounding (Gemini-2.5-Flash with GoogleSearch tool) ---
   async searchGrounding(query: string): Promise<{ text: string; urls: string[] }> {
+    this.checkApiKey(); // Added API key check
     try {
-      const response: GenerateContentResponse = await this.ai.models.generateContent({
+      const response: GenerateContentResponse = await this.ai!.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: query,
         config: {
@@ -178,28 +205,13 @@ export class GeminiService {
 
   // --- Maps Grounding (Gemini-2.5-Flash with GoogleMaps tool) ---
   async mapsGrounding(query: string): Promise<{ text: string; urls: string[] }> {
-    try {
-      const response: GenerateContentResponse = await this.ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: query,
-        config: {
-          tools: [{ googleMaps: {} }],
-        },
-      });
-
-      const urls: string[] = [];
-      if (response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
-        response.candidates[0].groundingMetadata.groundingChunks.forEach((chunk: any) => {
-          if (chunk.web?.uri) { // Maps grounding might return web URIs similar to search.
-            urls.push(chunk.web.uri);
-          }
-        });
-      }
-
-      return { text: response.text, urls: urls };
-    } catch (error) {
-      console.error('Error with Maps Grounding:', error);
-      throw new Error('Failed to perform maps grounding. Please try again.');
-    }
+    // Adhering to the rule: "Only `tools`: `googleSearch` is permitted. Do not use it with other tools."
+    // The `googleMaps` tool is not directly available in the current public @google/genai SDK for use with `tools` config.
+    this.checkApiKey();
+    console.warn('The Google Maps tool is not directly available in the current public @google/genai SDK for use with `tools` config. Please use general chat for map-related queries, or search grounding for locations.');
+    return {
+      text: `Nažalost, direktna integracija Google Maps alata putem Gemini API-ja nije podržana u ovoj konfiguraciji. Možete pokušati postaviti općenito pitanje o lokacijama u chatu.`,
+      urls: []
+    };
   }
 }
